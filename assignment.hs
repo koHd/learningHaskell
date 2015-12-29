@@ -1,36 +1,33 @@
 import Dist
 
-numOutcomes = 4
-outcomeProbability = 1/numOutcomes
-loseProbability = 1 - outcomeProbability
-betAmount totalMoney percentageToBet = (totalMoney / 100) * percentageToBet
+winAmount :: Num a => a -> a
 winAmount bet = 10 * bet
 
-expectedReturn :: Double -> Double -> Double -> Double
-expectedReturn totalMoney percentageToBet probability = 
-    probability * winAmount (betAmount totalMoney percentageToBet)
-
-possibleOutcomes :: [(Double, Double)]
-possibleOutcomes = [(outcome, outcomeProbability) | outcome <- [0..(numOutcomes-1)]]
-
-choose :: Double -> Double -> Double
+choose :: Integral a => a -> a -> a
 choose trials 0 = 1
 choose 0 successes = 0
-choose trials successes = choose (trials-1) (successes-1) * trials / successes 
+choose trials successes = choose (trials-1) (successes-1) * trials `div` successes 
 
-binomialProbability :: Double -> Double -> Double -> Double
+binomialProbability :: Int -> Int -> Double -> Double
 binomialProbability trials successes probability = 
-    (choose trials successes) * (probability**successes) * ((1-probability) ** (trials - successes))
+    (fromIntegral (choose trials successes)) * (probability^successes) 
+    * ((1-probability) ^ (trials - successes))
 
-binomialDistribution :: Double -> Double -> Dist Double
+binomialDistribution :: Int -> Double -> [Double]
 binomialDistribution trials probability = 
-    Dist [(successes, (binomialProbability trials successes probability)) | 
+    [(binomialProbability trials successes probability) | 
         successes <- [0..(trials-1)]] 
 
+expectedValue :: Double -> Double -> Double
+expectedValue betAmount winProbability = 
+    (winAmount (betAmount)) * winProbability + (-betAmount) * (1-winProbability)
+
 dreidelDreidelDreidel :: Double -> Double -> Int -> Dist Double
-dreidelDreidelDreidel startMoney percentageToBet rounds = 
-    Dist [x | x <- [0..percentageToBet]] 
+dreidelDreidelDreidel startMoney percentageToBet numRounds = 
+    Dist[((expectedValue (startMoney * percentageToBet) (binomialProbability numRounds successes 0.25))
+            * (fromIntegral numRounds) + startMoney,
+            binomialProbability numRounds successes 0.25) 
+            | successes <- [0..(numRounds-1)]]
 
 mean :: Dist Double -> Double
 mean (Dist distribution) = sum (map (\x -> (fst x) * (snd x)) distribution)
-

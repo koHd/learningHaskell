@@ -1,7 +1,7 @@
 import Dist
 
-winAmount :: Num a => a -> a
-winAmount bet = 10 * bet
+outcomeProbability = 0.25
+odds = 10
 
 choose :: Integral a => a -> a -> a
 choose trials 0 = 1
@@ -18,16 +18,27 @@ binomialDistribution trials probability =
     [(binomialProbability trials successes probability) | 
         successes <- [0..(trials-1)]] 
 
-expectedValue :: Double -> Double -> Double
-expectedValue betAmount winProbability = 
-    (winAmount (betAmount)) * winProbability + (-betAmount) * (1-winProbability)
+expectedValue :: Double -> Double -> Double -> Double
+expectedValue betAmount winProbability odds = 
+    (odds*betAmount) * winProbability + (-betAmount) * (1-winProbability)
 
 dreidelDreidelDreidel :: Double -> Double -> Int -> Dist Double
 dreidelDreidelDreidel startMoney percentageToBet numRounds = 
-    Dist[((expectedValue (startMoney * percentageToBet) (binomialProbability numRounds successes 0.25))
-            * (fromIntegral numRounds) + startMoney,
-            binomialProbability numRounds successes 0.25) 
-            | successes <- [0..(numRounds-1)]]
+    Dist[(expectedTotalMoney, sequenceProbability) 
+            | successes <- [0..(numRounds)],
+            let sequenceProbability = binomialProbability numRounds successes outcomeProbability,
+            let winRatio = (fromIntegral successes) / (fromIntegral numRounds),
+            let betAmount = expectedValue (startMoney*percentageToBet) outcomeProbability odds,
+            let return = expectedValue betAmount winRatio odds,
+            let expectedNetGain = return * (fromIntegral numRounds),
+            let expectedTotalMoney = expectedNetGain + startMoney]
 
 mean :: Dist Double -> Double
 mean (Dist distribution) = sum (map (\x -> (fst x) * (snd x)) distribution)
+
+prExceeds :: Double -> Dist Double -> Double
+prExceeds target dist = mean $ fmap (fromIntegral . fromEnum . (>= target)) dist
+
+kellyCriterion p b = (p * (b-1) - (1-p))/(b-1)
+
+recommendedBetRatio = kellyCriterion outcomeProbability odds

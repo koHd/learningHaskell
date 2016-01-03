@@ -29,8 +29,8 @@ dreidelDreidelDreidel startMoney percentageToBet numRounds =
             let sequenceProbability = binomialProbability numRounds successes outcomeProbability,
             let winRatio = (fromIntegral successes) / (fromIntegral numRounds),
             let betAmount = expectedValue (startMoney*percentageToBet) outcomeProbability odds,
-            let return = expectedValue betAmount winRatio odds,
-            let expectedNetGain = return * (fromIntegral numRounds),
+            let value = expectedValue betAmount winRatio odds,
+            let expectedNetGain = value * (fromIntegral numRounds),
             let expectedTotalMoney = expectedNetGain + startMoney]
 
 mean :: Dist Double -> Double

@@ -7,6 +7,11 @@
 	:: if the letter is in the secret word, the letter becomes a known letter in the secret word
 	:: else the player loses a life
 	: go to next round -}
+	
+main = do
+	putStrLn "Guess a letter: "
+	guess <- getLine
+	putStrLn("You guessed: " ++ guess)
 
 -- hide the unknown letters in the secret
 hideUnknownLetters :: [Char] -> [Char] -> [Char]
@@ -18,9 +23,10 @@ checkGuess :: Char -> [Char] -> Bool
 checkGuess c [] = error "no secret word"
 checkGuess c secret = if c `elem` secret then True else False
 
+-- a round of hangman
 playHangman :: (Eq a, Num a) => a -> a -> [Char] -> [Char] -> [Char]
 playHangman _ _ [] _ = error "no secret word set"
 playHangman _ 0 _ _ = "You lose. Game over. "
-playHangman _ lives secret guesses 
-	| secret == hideUnknownLetters secret guesses = "You win"
+playHangman round lives secret guesses 
+	| secret == hideUnknownLetters secret guesses = "You win, the secret word is: " ++ secret
 	| otherwise = "Nope"

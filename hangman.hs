@@ -8,9 +8,8 @@
 	:: else the player loses a life
 	: go to next round -}
 	
-main = do
-	putStrLn "Play Hangman!"
-	playHangman 0 7 "secret" []
+-- main = do
+	-- putStrLn "Play Hangman!"
 
 -- check if player won (secret -> known -> true/false)
 playerWin :: [Char] -> [Char] -> Bool
@@ -27,15 +26,18 @@ checkGuess :: Char -> [Char] -> Bool
 checkGuess c [] = error "no secret word"
 checkGuess c secret = if c `elem` secret then True else False
 
+-- data type for game states
+data GameState = Start | Win | Lose | CorrectGuess | IncorrectGuess
+
 -- a round of hangman
-playHangman :: (Eq a, Num a) => a -> a -> [Char] -> [Char] -> IO ()
-playHangman _ _ [] _ = putStrLn $ error "no secret word set"
-playHangman _ 0 _ _ = putStrLn "You lose. Game over. "
+playHangman :: (Ord a, Num a) => a -> a -> [Char] -> [Char] -> GameState
+playHangman _ _ [] _ = error "no secret word set"
+playHangman 0 lives _ []
+	| lives > 0 = Start
+	| otherwise = error "no lives initialised"
+playHangman _ 0 _ _ = Lose
 playHangman round lives secret guesses 
-	| secret == hideUnknownLetters secret guesses = putStrLn $ "You win, the secret word is: " ++ secret
-	| otherwise = do
-		putStrLn "Guess a letter: "
-		guess <- getChar
-		if checkGuess guess secret
-			then putStrLn "Correct guess"
-			else putStrLn "Incorrect guess"
+	| secret == hideUnknownLetters secret guesses = Win
+	| checkGuess (guesses !! 0) secret = CorrectGuess
+	| otherwise = IncorrectGuess
+		

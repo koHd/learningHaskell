@@ -26,11 +26,6 @@ playHangman round lives secret guesses
 	| secret == hideUnknownLetters secret guesses = Win
 	| checkGuess (guesses !! 0) secret = CorrectGuess
 	| otherwise = IncorrectGuess
-	
--- check if player won (secret -> known -> true/false)
-playerWin :: [Char] -> [Char] -> Bool
-playerWin [] _ = error "no secret word"
-playerWin secret guesses = secret == hideUnknownLetters secret guesses
 
 -- hide the unknown letters in the secret
 hideUnknownLetters :: [Char] -> [Char] -> [Char]

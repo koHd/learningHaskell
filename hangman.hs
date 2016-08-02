@@ -8,23 +8,9 @@
 	:: else the player loses a life
 	: go to next round -}
 	
+-- later on the I/O functionality will go in main to make the game playable from command line
 -- main = do
 	-- putStrLn "Play Hangman!"
-
--- check if player won (secret -> known -> true/false)
-playerWin :: [Char] -> [Char] -> Bool
-playerWin [] _ = error "no secret word"
-playerWin secret guesses = secret == hideUnknownLetters secret guesses
-
--- hide the unknown letters in the secret
-hideUnknownLetters :: [Char] -> [Char] -> [Char]
-hideUnknownLetters [] _ = error "no secret word"
-hideUnknownLetters secret guesses = [if c `elem` guesses then c else '_' | c <- secret]
-
--- check if guess is in the secret
-checkGuess :: Char -> [Char] -> Bool
-checkGuess c [] = error "no secret word"
-checkGuess c secret = if c `elem` secret then True else False
 
 -- data type for game states
 data GameState = Start | Win | Lose | CorrectGuess | IncorrectGuess deriving (Show)
@@ -40,4 +26,19 @@ playHangman round lives secret guesses
 	| secret == hideUnknownLetters secret guesses = Win
 	| checkGuess (guesses !! 0) secret = CorrectGuess
 	| otherwise = IncorrectGuess
+	
+-- check if player won (secret -> known -> true/false)
+playerWin :: [Char] -> [Char] -> Bool
+playerWin [] _ = error "no secret word"
+playerWin secret guesses = secret == hideUnknownLetters secret guesses
+
+-- hide the unknown letters in the secret
+hideUnknownLetters :: [Char] -> [Char] -> [Char]
+hideUnknownLetters [] _ = error "no secret word"
+hideUnknownLetters secret guesses = [if c `elem` guesses then c else '_' | c <- secret]
+
+-- check if guess is in the secret
+checkGuess :: Char -> [Char] -> Bool
+checkGuess c [] = error "no secret word"
+checkGuess c secret = if c `elem` secret then True else False
 		

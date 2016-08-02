@@ -27,7 +27,7 @@ checkGuess c [] = error "no secret word"
 checkGuess c secret = if c `elem` secret then True else False
 
 -- data type for game states
-data GameState = Start | Win | Lose | CorrectGuess | IncorrectGuess
+data GameState = Start | Win | Lose | CorrectGuess | IncorrectGuess deriving (Show)
 
 -- a round of hangman
 playHangman :: (Ord a, Num a) => a -> a -> [Char] -> [Char] -> GameState

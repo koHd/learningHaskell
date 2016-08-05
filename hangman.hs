@@ -12,20 +12,23 @@
 -- main = do
 	-- putStrLn "Play Hangman!"
 
--- data type for game states
-data GameState = Start | Win | Lose | CorrectGuess | IncorrectGuess deriving (Show)
-
 -- a round of hangman
-playHangman :: (Ord a, Num a) => a -> a -> [Char] -> [Char] -> GameState
+playHangman :: (Show a, Ord a, Num a) => a -> a -> [Char] -> [Char] -> IO ()
 playHangman _ _ [] _ = error "no secret word set"
-playHangman 0 lives _ []
-	| lives > 0 = Start
-	| otherwise = error "no lives initialised"
-playHangman _ 0 _ _ = Lose
+playHangman _ 0 _ _ = putStrLn "You didn't get the secret this time. Better luck next time!"
 playHangman round lives secret guesses 
-	| secret == hideUnknownLetters secret guesses = Win
-	| checkGuess (guesses !! 0) secret = CorrectGuess
-	| otherwise = IncorrectGuess
+	| secret == known = do
+		putStrLn ("You Win! The word is: " ++ known)
+	| otherwise = do
+		putStrLn "-----"
+		putStrLn ("Round: " ++ (show round))
+		putStrLn ("Known so far: " ++ known)
+		putStrLn ("Lives: " ++ (show lives))
+		putStrLn "Make a guess: "
+		guess <- getLine
+		let newLives = if letterIsInWord (head guess) secret then lives else lives-1
+		playHangman (round+1) newLives secret ((head guess):guesses)
+	where known = hideUnknownLetters secret guesses
 
 -- hide the unknown letters in the secret
 hideUnknownLetters :: [Char] -> [Char] -> [Char]
@@ -33,7 +36,7 @@ hideUnknownLetters [] _ = error "no secret word"
 hideUnknownLetters secret guesses = [if c `elem` guesses then c else '_' | c <- secret]
 
 -- check if guess is in the secret
-checkGuess :: Char -> [Char] -> Bool
-checkGuess c [] = error "no secret word"
-checkGuess c secret = if c `elem` secret then True else False
+letterIsInWord :: Char -> [Char] -> Bool
+letterIsInWord c [] = error "no secret word"
+letterIsInWord c secret = if c `elem` secret then True else False
 		

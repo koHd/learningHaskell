@@ -9,8 +9,9 @@
 	: go to next round -}
 	
 -- later on the I/O functionality will go in main to make the game playable from command line
--- main = do
-	-- putStrLn "Play Hangman!"
+main = do
+	putStrLn "Let's Play Hangman!"
+	playHangman 0 7 "secret" []
 
 -- a round of hangman
 playHangman :: (Show a, Ord a, Num a) => a -> a -> [Char] -> [Char] -> IO ()

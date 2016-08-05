@@ -16,18 +16,18 @@
 playHangman :: (Show a, Ord a, Num a) => a -> a -> [Char] -> [Char] -> IO ()
 playHangman _ _ [] _ = error "no secret word set"
 playHangman _ 0 _ _ = putStrLn "You didn't get the secret this time. Better luck next time!"
-playHangman round lives secret guesses 
+playHangman roundNum lives secret guesses 
 	| secret == known = do
 		putStrLn ("You Win! The word is: " ++ known)
 	| otherwise = do
 		putStrLn "-----"
-		putStrLn ("Round: " ++ (show round))
+		putStrLn ("Round: " ++ (show roundNum))
 		putStrLn ("Known so far: " ++ known)
 		putStrLn ("Lives: " ++ (show lives))
 		putStrLn "Make a guess: "
 		guess <- getLine
 		let newLives = if letterIsInWord (head guess) secret then lives else lives-1
-		playHangman (round+1) newLives secret ((head guess):guesses)
+		playHangman (roundNum+1) newLives secret ((head guess):guesses)
 	where known = hideUnknownLetters secret guesses
 
 -- hide the unknown letters in the secret
